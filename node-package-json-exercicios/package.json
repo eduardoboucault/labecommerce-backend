@@ -1,0 +1,13 @@
+{
+  "name": "labecommerce-backend",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Repositório para projeto backend curso Labenu.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
