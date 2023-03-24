@@ -6,19 +6,19 @@ import { user, product, purchase, CATEGORY } from "./types/types";
 
 export const users: user[] = [
     {
-        id: 'u001',
+        id: 'eduardo',
         email: 'eduardo@email.com',
         password: 'eduardo123'
 
     },
     {
-        id: 'u002',
+        id: 'natalia',
         email: 'natalia@email.com',
         password: 'natalia123'
 
     },
     {
-        id: 'u003',
+        id: 'lucas',
         email: 'lucas@email.com',
         password: 'lucas123'
     }
@@ -26,19 +26,19 @@ export const users: user[] = [
 
 export const products: product[] = [
     {
-        id: 'p001',
+        id: '001',
         name: 'Relógio',
         price: 30,
         category: CATEGORY.ACCESSORIES
     },
     {
-        id: 'p002',
+        id: '002',
         name: 'Moletom',
         price: 70,
         category: CATEGORY.CLOTHES_AND_SHOES
     },
     {
-        id: 'p003',
+        id: '003',
         name: 'Celular',
         price: 800,
         category: CATEGORY.ELECTRONICS
@@ -47,19 +47,19 @@ export const products: product[] = [
 
 export const purchases: purchase[] = [
     {
-        userId: 'b001',
+        userId: '001',
         productId: '001',
         quantity: 2,
         totalPrice: 60
     },
     {
-        userId: 'b002',
+        userId: '002',
         productId: '002',
         quantity: 1,
         totalPrice: 140
     },
     {
-        userId: 'b003',
+        userId: '003',
         productId: '003',
         quantity: 1,
         totalPrice: 800
