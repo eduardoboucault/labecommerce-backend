@@ -22,132 +22,447 @@ app.listen(3003, () => {
     console.log("Servidor rodando na porta 3003");
 });
 
-//* GET
 app.get('/users', (req: Request, res: Response) => {
-    res.status(200).send(users)
-});
 
-//* GET
-app.get('/products', (req: Request, res: Response) => {
-    res.status(200).send(products);
-});
+    try {
+        res.status(200).send(users);
+    } catch (error) {
+        console.log(error)
 
-//* GET
-app.get('/products/search', (req: Request, res: Response) => {
-    const q = req.query.q as string;
-    const result = products.filter(product => product.name.toLowerCase().includes(q.toLowerCase()))
-    res.status(200).send(result);
-});
+        if (res.statusCode === 200) {
+            res.status(500)
+        }
 
-//? POST
-app.post('/users', (req: Request, res: Response) => {
-    const { id, email, password }: user = req.body;
-    const newUser = {
-        id,
-        email,
-        password
+        if (error instanceof Error) {
+            res.send(error.message)
+        } else {
+            res.send("Erro inesperado")
+        }
     }
-    users.push(newUser);
-    res.status(201).send('Produto cadastrado com sucesso');
+
 });
 
-//? POST
+app.get('/products', (req: Request, res: Response) => {
+
+    try {
+        res.status(200).send(products);
+    } catch (error) {
+        console.log(error)
+
+        if (res.statusCode === 200) {
+            res.status(500)
+        }
+
+        if (error instanceof Error) {
+            res.send(error.message)
+        } else {
+            res.send("Erro inesperado")
+        }
+
+    }
+
+});
+
+app.get('/products/search', (req: Request, res: Response) => {
+
+    try {
+
+        const q = req.query.q
+
+        if (q !== undefined && typeof q === 'string') {
+            if (q.length > 0) {
+                const result = products.filter(product => product.name.toLowerCase().includes(q.toLowerCase()));
+                res.status(200).send(result);
+            } else {
+                throw new Error('Parâmetro de busca vazio, insira algum valor.')
+            }
+        }
+
+    } catch (error) {
+        console.log(error)
+
+        if (res.statusCode === 200) {
+            res.status(500)
+        }
+
+        if (error instanceof Error) {
+            console.log(error.message)
+        } else {
+            console.log("Erro inesperado")
+        }
+
+    }
+
+});
+
+app.post('/users', (req: Request, res: Response) => {
+
+    try {
+
+        const { id, email, password }: user = req.body;
+
+        if (id !== undefined) {
+            if (typeof id !== 'string') {
+                throw new Error('ID deve ser uma string.')
+            }
+        }
+
+        const validateId = users.find(user => user.id === id)
+
+        if (validateId) {
+            throw new Error('ID cadastrado já existe.')
+        }
+
+        if (email !== undefined) {
+            if (typeof email !== 'string') {
+                throw new Error('Email deve ser uma string.')
+            }
+        }
+
+        const validateEmail = users.find(user => user.email === email)
+
+        if (validateEmail) {
+            throw new Error('Email cadastrado já existe.')
+        }
+
+        if (password !== undefined) {
+            if (typeof password !== 'string') {
+                throw new Error('Password deve ser uma string')
+            }
+        }
+        if (!password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,12}$/g)) {
+            throw new Error("Password' deve possuir entre 8 e 12 caracteres, com letras maiúsculas e minúsculas e no mínimo um número e um caractere especial")
+        }
+
+        const newUser = {
+            id,
+            email,
+            password
+        };
+
+        users.push(newUser);
+
+        res.status(201).send('Produto cadastrado com sucesso');
+
+    } catch (error) {
+        console.log(error)
+        if (res.statusCode === 200) {
+            res.status(500)
+        }
+        if (error instanceof Error) {
+            console.log(error.message)
+        } else {
+            console.log('Erro inesperado')
+        }
+    }
+
+});
+
 app.post('/products', (req: Request, res: Response) => {
+
     const { id, name, price, category }: product = req.body;
+
+    if (id !== undefined) {
+        if (typeof id !== 'string') {
+            throw new Error('ID do produto precisa ser string.')
+        } else {
+            const result = products.find(prod => prod.id === id)
+            if (result) {
+                throw new Error('ID de produto já cadastrado')
+            }
+        }
+    }
+
+    if (name !== undefined) {
+        if (typeof name !== 'string') {
+            throw new Error('Nome do produto precisa ser string.')
+        } else {
+            const result = products.find(prod => prod.name === name)
+            if (result) {
+                throw new Error('Nome de produto já cadastrado')
+            }
+        }
+    }
+
+    if (price !== undefined) {
+        if (typeof price !== 'number') {
+            throw new Error('Preço deve ser do tipo number')
+        }
+    }
+
+    if (category !== undefined) {
+        throw new Error('Defina uma categoria')
+    }
+
     const newProduct = {
         id,
         name,
         price,
         category
     };
+
     products.push(newProduct);
+
     res.status(201).send('Produto cadastrado com sucesso');
 });
 
-//? POST
 app.post('/purchases', (req: Request, res: Response) => {
+
     const { userId, productId, quantity, totalPrice }: purchase = req.body;
+
+    if (userId !== undefined) {
+        if (typeof userId !== 'string') {
+            throw new Error('ID de usuário precisa ser string')
+        }
+    }
+
+    if (productId !== undefined) {
+        if (typeof productId !== 'string') {
+            throw new Error('ID do produto precisa ser uma string')
+        }
+    }
+
+    if (quantity !== undefined) {
+        if (typeof quantity !== 'number') {
+            throw new Error('Quantidade precisa ser number')
+        }
+    }
+
+    if (totalPrice !== undefined) {
+        if (typeof totalPrice !== 'number') {
+            throw new Error('Preço total precisa ser number')
+        }
+    }
+
+    const existingPurchase = purchases.find(purchase => purchase.userId === userId && purchase.productId === productId);
+
+    if (existingPurchase) {
+        const purchasesWithTotalPrice = purchases.map(purchase => {
+            const product = products.find(product => product.id === purchase.productId);
+            return {
+                ...purchase,
+                totalPrice: product ? product.price * purchase.quantity : 0
+            };
+        });
+
+        const existingTotalPrice = purchasesWithTotalPrice.find(purchase => purchase.userId === userId && purchase.productId === productId)?.totalPrice;
+
+        if (existingTotalPrice !== totalPrice) {
+            throw new Error('Preço total não corresponde ao preço calculado para esta compra');
+        }
+    }
+
     const newPurchase = {
         userId,
         productId,
         quantity,
         totalPrice
     };
+
     purchases.push(newPurchase);
-    res.status(201).send('Compra realizada com sucesso')
+
+    res.status(201).send('Compra realizada com sucesso');
 });
 
-//* GET
 app.get('/products/:id', (req: Request, res: Response) => {
+
     const id = req.params.id;
-    const result = products.find(product => product.id === id);
+
+    if (id !== undefined) {
+        if (typeof id !== 'string') {
+            throw new Error('ID inválido')
+        }
+    };
+
+    const result = products.filter(prod => prod.id === id);
+
+    if (result.length === 0) {
+        throw new Error('Produto não existe');
+    }
+
     res.status(200).send(result);
+
 });
 
-//* GET
 app.get('/users/:id/purchases', (req: Request, res: Response) => {
+
     const id = req.params.id;
-    const result = purchases.filter(purchase => purchase.userId === id);
+
+    if (id !== undefined) {
+        if (typeof id !== 'string') {
+            throw new Error('ID inválido')
+        }
+    };
+
+    const result = products.filter(prod => prod.id === id);
+
+    if (result.length === 0) {
+        throw new Error('Produto não existe');
+    }
+
     res.status(200).send(result);
 });
 
-//*! DELETE
-app.delete('/users/:id', (req: Request, res: Response) => {
+app.get('/products/:id', (req: Request, res: Response) => {
+
     const id = req.params.id;
+
+    if (id !== undefined) {
+        if (typeof id !== 'string') {
+            throw new Error('ID inválido')
+        }
+    };
+
+    const result = products.filter(prod => prod.id === id);
+
+    if (result.length === 0) {
+        throw new Error('Produto não existe');
+    }
+
+    res.status(200).send(result);
+});
+
+app.delete('/users/:id', (req: Request, res: Response) => {
+
+    const id = req.params.id;
+
+    if (id !== undefined) {
+        if (typeof id !== 'string') {
+            throw new Error('ID inválido')
+        }
+    };
+
     const indexUser = users.findIndex(user => user.id === id);
-    if (indexUser >= 0) {
-        users.splice(indexUser, 1)
-        return res.status(200).send('User apagado com sucesso')
+
+    if (indexUser === -1) {
+        throw new Error('Usuário não encontrado')
+    };
+
+    users.splice(indexUser, 1);
+    res.status(200).send('Usuário removido com sucesso!');
+});
+
+app.delete('/products/:id', (req: Request, res: Response) => {
+
+    const id = req.params.id;
+
+    if (id !== undefined) {
+        if (typeof id !== 'string') {
+            throw new Error('ID inválido')
+        }
+    };
+
+    const indexProd = products.findIndex(prod => prod.id === id);
+
+    if (indexProd === -1) {
+        throw new Error('Usuário não encontrado')
+    };
+
+    products.slice(indexProd, 1);
+    res.status(200).send('Produto removido com sucesso!');
+});
+
+app.put('/users/:id', (req: Request, res: Response) => {
+
+    const id = req.params.id;
+
+    if (typeof id !== 'string') {
+        return res.status(400).send('ID de usuário inválido');
+    }
+
+    const { id: newId, email: newEmail, password: newPassword } = req.body;
+    const errors = [];
+
+    if (!newId) {
+        errors.push('ID inexistente, digite um novo ID');
+    }
+
+    if (newId && typeof newId !== 'string') {
+        errors.push('Novo id precisa ser string');
+    }
+
+    if (!newEmail) {
+        errors.push('Novo email inexistente, digite um novo email');
+    }
+
+    if (newEmail && typeof newEmail !== 'string') {
+        errors.push('Novo email precisa ser string');
+    }
+
+    if (!newPassword) {
+        errors.push('Novo password inexistente, digite um novo password');
+    }
+
+    if (newPassword && typeof newPassword !== 'string') {
+        errors.push('Novo password precisa ser string');
+    }
+
+    if (errors.length > 0) {
+        return res.status(400).send(errors.join('. '));
+    }
+
+    const result = users.find(user => user.id === id);
+
+    if (result) {
+        Object.assign(result, { id: newId, email: newEmail, password: newPassword });
+        res.status(200).send('Usuário editado com sucesso');
+    } else {
+        res.status(404).send('Usuário não encontrado');
     }
 });
 
-//*! DELETE
-app.delete('/products/:id', (req: Request, res: Response) => {
-    const id = req.params.id;
-    const indexProduct = products.findIndex(product => product.id === id);
-    if (indexProduct >= 0) {
-        products.slice(indexProduct, 1)
-        return res.status(200).send('Produto apagado com sucesso')
-    };
-});
-
-//? PUT
-app.put('/users/:id', (req: Request, res: Response) => {
-    const id = req.params.id;
-
-    const newId = req.body.id as string | undefined;
-    const newEmail = req.body.email as string | undefined;
-    const newPassword = req.body.password as string | undefined;
-
-    const validId = users.find(user => user.id === id);
-    if (validId) {
-        validId.id = newId || validId.id;
-        validId.email = newEmail || validId.email
-        validId.password = newPassword || validId.password
-        return res.status(200).send('Cadastro atualizado com sucesso');
-    };
-    return res.send('User não encontrado')
-});
-
-//? PUT
 app.put('/products/:id', (req: Request, res: Response) => {
-
     const id = req.params.id;
-    
-    const newId = req.body.id as string | undefined;
-    const newName = req.body.name as string | undefined;
-    const newPrice = req.body.price as number | undefined;
-    const newCategory = req.body.category as CATEGORY | undefined;
 
-    const validId = products.find(product => product.id === id);
+    if (typeof id !== 'string') {
+        return res.status(400).send('ID de usuário inválido');
+    }
 
-    if(validId){
-        validId.id = newId || validId.id;
-        validId.name = newName || validId.name;
-        validId.price = isNaN(newPrice) ? validId.price : newPrice;
-        validId.category = newCategory || validId.category;
-        return res.status(200).send('Produto atualizado com sucesso');
-    };
+    const { id: newId, name: newName, price: newPrice, category: newCategory } = req.body;
+    const errors = [];
 
-    return res.send('Produto não encontrado');
+    if (!newId) {
+        errors.push('ID inexistente, digite um novo ID');
+    }
+
+    if (newId && typeof newId !== 'string') {
+        errors.push('Novo id precisa ser string');
+    }
+
+    if (!newName) {
+        errors.push('Novo nome inexistente, digite um novo nome');
+    }
+
+    if (newName && typeof newName !== 'string') {
+        errors.push('Novo nome precisa ser string');
+    }
+
+    if (!newPrice) {
+        errors.push('Novo preço inexistente, digite um novo preço');
+    }
+
+    if (newPrice && typeof newPrice !== 'number') {
+        errors.push('Novo preço precisa ser um number');
+    }
+
+    if (!newCategory) {
+        errors.push('Nova categoria inexistente, digite uma nova categoria');
+    }
+
+    if (newCategory && typeof newCategory !== 'string') {
+        errors.push('Nova categoria precisa ser string');
+    }
+
+    if (errors.length > 0) {
+        return res.status(400).send(errors.join('. '));
+    }
+
+    const result = users.find(user => user.id === id);
+
+    if (result) {
+        Object.assign(result, { id: newId, name: newName, price: newPrice, category: newCategory });
+        res.status(200).send('Produto editado com sucesso');
+    } else {
+        res.status(404).send('Produto não encontrado');
+    }
 });
