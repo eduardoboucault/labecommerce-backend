@@ -39,34 +39,41 @@ app.post("/users", (req: Request, res: Response) => {
     const { id, email, password }: user = req.body;
 
     if (!id) {
+      res.status(404)
       throw new Error("Campo ID vazio, digite um ID.");
     }
 
     if (typeof id !== "string") {
+      res.status(404)
       throw new Error("Digite ID em formato string.");
     }
 
     const validateId = users.find((user) => user.id === id);
 
     if (validateId) {
+      res.status(409)
       throw new Error("ID cadastrado já existente.");
     }
 
     if (!email) {
+      res.status(404)
       throw new Error("Campo email vazio, digite um email.");
     }
 
     if (typeof email !== "string") {
+      res.status(404)
       throw new Error("Digite email em formato string.");
     }
 
     const validateEmail = users.find((user) => user.email === email);
 
     if (validateEmail) {
+      res.status(409)
       throw new Error("Email cadastrado já existente.");
     }
 
     if (!password) {
+      res.status(404)
       throw new Error("Campo password vazio, digite um password.");
     }
 
@@ -75,6 +82,7 @@ app.post("/users", (req: Request, res: Response) => {
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,12}$/g
       )
     ) {
+      res.status(404)
       throw new Error(
         "Password' deve possuir entre 8 e 12 caracteres, com letras maiúsculas e minúsculas e no mínimo um número e um caractere especial"
       );
@@ -219,6 +227,7 @@ app.post("/purchases", (req: Request, res: Response) => {
       )?.totalPrice;
 
       if (existingTotalPrice !== totalPrice) {
+        res.status(409)
         throw new Error(
           "Preço total não corresponde ao preço calculado para esta compra"
         );
