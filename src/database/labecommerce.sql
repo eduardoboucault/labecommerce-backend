@@ -120,3 +120,47 @@ FROM products
 WHERE
     price BETWEEN 100.00 AND 300.00
 ORDER BY price ASC;
+
+CREATE TABLE
+    purchases (
+        id TEXT PRIMARY KEY UNIQUE NOT NULL,
+        total_price REAL NOT NULL,
+        paid INTEGER NOT NULL,
+        created_at TEXT,
+        delivered_at TEXT,
+        buyer_id TEXT NOT NULL,
+        FOREIGN KEY (buyer_id) REFERENCES users (id)
+    );
+
+INSERT INTO
+    purchases (id, total_price, paid, buyer_id)
+VALUES ('p001', 100.00, 0, 'u001'), ('p002', 730.50, 0, 'u002'), ('p003', 1200.00, 0, 'u003');
+
+INSERT INTO
+    purchases (
+        id,
+        total_price,
+        paid,
+        created_at,
+        buyer_id
+    )
+VALUES ('pu001', 250.00, 0, NULL, 'u001'), ('pu002', 500.00, 0, NULL, 'u001'), ('pu003', 175.00, 0, NULL, 'u002'), ('pu004', 275.00, 0, NULL, 'u002'), ('pu005', 800.00, 0, NULL, 'u003'), ('pu006', 150.00, 0, NULL, 'u003');
+
+UPDATE purchases
+SET
+    delivered_at = DATETIME('now')
+WHERE id = 'pu001';
+
+SELECT
+    p.id AS purchase_id,
+    p.total_price,
+    p.paid,
+    p.created_at,
+    p.delivered_at,
+    pr.id AS product_id,
+    pr.name AS product_name,
+    pr.price AS product_price,
+    pr.category AS product_category
+FROM purchases p
+    JOIN products pr ON p.id = pr.id
+WHERE p.buyer_id = 'u001';
