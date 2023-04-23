@@ -66,10 +66,6 @@ SELECT * FROM products;
 
 SELECT * FROM products WHERE name LIKE '%monitor%';
 
--- 2. crie um novo usuário
-
--- insere o item mockado na tabela users
-
 INSERT INTO
     users (id, email, password)
 VALUES (
@@ -77,10 +73,6 @@ VALUES (
         'novo@usuario.com',
         'senha123'
     );
-
--- 3. crie um novo produto
-
--- insere o item mockado na tabela products
 
 INSERT INTO
     products (id, name, price, category)
@@ -91,23 +83,17 @@ VALUES (
         'CELULARES'
     );
 
--- 4. busca de produtos por id
-
 SELECT * FROM products WHERE id = 'p001';
 
--- 5. deleção de user por id
 
 DELETE FROM users WHERE id = 'u001';
 
--- 6. deleção de produto por id
 
 DELETE FROM products WHERE id = 'p005';
 
--- 7. edição de user por id
 
 UPDATE users SET email = 'novoemail@usuario.com' WHERE id = 'u002';
 
--- 8. edição de produto por id
 
 UPDATE products SET price = 1500.00 WHERE id = 'p003';
 
@@ -164,3 +150,26 @@ SELECT
 FROM purchases p
     JOIN products pr ON p.id = pr.id
 WHERE p.buyer_id = 'u001';
+
+CREATE TABLE
+    purchases_products (
+        purchase_id TEXT NOT NULL,
+        product_id TEXT NOT NULL,
+        quantity INTEGER NOT NULL,
+        PRIMARY KEY (purchase_id, product_id),
+        FOREIGN KEY (purchase_id) REFERENCES purchases (id),
+        FOREIGN KEY (product_id) REFERENCES products (id)
+    );
+
+INSERT INTO
+    purchases_products (
+        purchase_id,
+        product_id,
+        quantity
+    )
+VALUES ('c001', 'p001', 5), ('c001', 'p002', 3), ('c002', 'p001', 2), ('c002', 'p003', 1), ('c002', 'p005', 4), ('c003', 'p002', 1), ('c003', 'p004', 2), ('c003', 'p005', 3);
+
+SELECT pp.*, pr.*
+FROM purchases_products pp
+    JOIN purchases p ON pp.purchase_id = p.id
+    JOIN products pr ON pp.product_id = pr.id;
